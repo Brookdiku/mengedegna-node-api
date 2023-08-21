@@ -31,11 +31,13 @@ db.sequelize.sync({ force: false }).then(() => {
     console.log("resync-done.");
 })
 db.buses.hasMany(db.busImages, {
-    foreignKey: 'bud_id',
-    as:'busImage'
+    onDelete: 'CASCADE',
+    foreignKey: 'bus_id',
+    as:'busImage',
+    
 })
 db.busImages.belongsTo(db.buses, {
-    foreignKey: 'bud_id',
+    foreignKey: 'bus_id',
     as:'bus'
 })
 module.exports = db;

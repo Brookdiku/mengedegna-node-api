@@ -2,7 +2,7 @@
 const db = require("../models")
 const bcrypt = require("bcrypt")
 //configuration
-const User = db.user;
+const User = db.users;
 //create user
 const createUser = async (req, res) => {
     const { firstName, lastName, email, phoneNumber, password, photo } = req.body;

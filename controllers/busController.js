@@ -1,70 +1,149 @@
-//import
-const db = require("../models")
-//configuration
+// Import the database models
+const db = require("../models");
+
+// Configure the bus model
 const Bus = db.buses;
-//create bus
+
+// Create a bus
 const createBus = async (req, res) => {
-    const data = { plateNumber, totalSeats, grade } = req.body;
-    const bus = await Bus.create(data)
-    res.status(200).send({
-        message: "bus record created.",
-        bus: {
-            id: bus.id,
-            grade: bus.grade,
-            plateNumber: bus.plateNumber,
-            totalSeats: bus.totalSeats
-        }
+  // Get the data from the request body
+  let data = { plateNumber, totalSeats, grade } = req.body;
+
+  // Validate the data
+  if (!plateNumber || plateNumber === "" || !totalSeats || totalSeats === "" || !grade || grade == "") {
+    return res.status(400).send({
+      message: "Please fill in all required fields."
     });
-}
-//get all bus
+  }
+
+  // Check if the bus already exists
+  const checkBus = await Bus.findOne({ where: { plateNumber: data.plateNumber } });
+  if (checkBus) {
+    return res.status(409).json({ message: "This bus already exists." });
+  }
+
+  // Create the bus
+  const bus = await Bus.create({
+    plateNumber: data.plateNumber,
+    totalSeats: data.totalSeats,
+    grade: data.grade
+  });
+
+  // Send the response
+  res.status(200).send({
+    message: "Bus created successfully.",
+    bus: {
+      id: bus.id,
+      grade: bus.grade,
+      plateNumber: bus.plateNumber,
+      totalSeats: bus.totalSeats
+    }
+  });
+};
+
+// Get all buses
 const getBuses = async (req, res) => {
-    let buses = await Bus.findAll({
-        attributes: [
-            'id',
-            'grade',
-            'plateNumber',
-            'totalSeats',
-        ]
-    });
-    res.status(200).send(buses);
-}
-//get one bus
+  // Get all buses from the database
+  const buses = await Bus.findAll({
+    attributes: ["id", "grade", "plateNumber", "totalSeats"],
+    include: [{
+      model: db.busImages,
+      as: "busImage",
+      attributes: ["id", "imageUrl"]
+    }]
+  });
+
+  // Send the response
+  res.status(200).send(buses);
+};
+
+// Get one bus
 const getBus = async (req, res) => {
-    let id = req.params.id;
-    let bus = await Bus.findOne({
-        attributes: [
-            'id',
-            'grade',
-            'plateNumber',
-            'totalSeats',
-        ], where: { id: id }
+  // Get the bus ID from the request params
+  const id = req.params.id;
+
+  // Get the bus from the database
+  const bus = await Bus.findOne({
+    where: { id },
+    attributes: ["id", "grade", "plateNumber", "totalSeats"],
+    include: [{
+      model: db.busImages,
+      as: "busImage",
+      attributes: ["id", "imageUrl"]
+    }]
+  });
+
+  // Check if the bus exists
+  if (!bus) {
+    return res.status(404).send({
+      message: "Bus not found."
     });
-    res.status(200).send(bus);
-}
-// update bus
+  }
+
+  // Send the response
+  res.status(200).send(bus);
+};
+
+// Update a bus
 const updateBus = async (req, res) => {
-    let id = req.params.id;
-    const bus = await Bus.update(req.body, { where: { id: id } })
-    res.status(200).send({
-        message: "bus record updated.",
-        bus: {
-            id: bus.id,
-            grade: bus.grade,
-            plateNumber: bus.plateNumber,
-            totalSeats: bus.totalSeats
-        }
+  // Get the bus ID from the request params
+  const id = req.params.id;
+
+  // Get the bus from the database
+  const bus = await Bus.findOne({ where: { id } });
+
+  // Check if the bus exists
+  if (!bus) {
+    return res.status(404).send({
+      message: "Bus not found."
     });
-}
-//delete bus
+  }
+
+  // Update the bus data
+  bus.update(req.body);
+
+  // Save the bus
+  await bus.save();
+
+  // Send the response
+  res.status(200).send({
+    message: "Bus updated successfully.",
+    bus: {
+      id: bus.id,
+      grade: bus.grade,
+      plateNumber: bus.plateNumber,
+      totalSeats: bus.totalSeats
+    }
+  });
+};
+
+// Delete a bus
 const deleteBus = async (req, res) => {
-    let id = req.params.id;
-    await Bus.destroy({ where: { id: id } });
-    res.status(200).send({ message: "bus record deleted." });
-}
+  // Get the bus ID from the request params
+  const id = req.params.id;
+
+  // Get the bus from the database
+  const bus = await Bus.findOne({ where: { id } });
+
+  // Check if the bus exists
+  if (!bus) {
+    return res.status(404).send({
+      message: "Bus not found."
+    });
+  }
+
+  // Delete the bus
+  await bus.destroy();
+
+  // Send the response
+  res.status(200).send({ message: "Bus deleted successfully." });
+};
+
+// Export the functions
 module.exports = {
-    createBus,
-    getBuses,
-    getBus,
-    updateBus,
-    deleteBus
+  createBus,
+  getBuses,
+  getBus,
+  updateBus,
+  deleteBus
 }
