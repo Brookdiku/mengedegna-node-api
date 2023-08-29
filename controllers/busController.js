@@ -23,22 +23,19 @@ const createBus = async (req, res) => {
   }
 
   // Create the bus
-  const bus = await Bus.create({
+  const resBus = await Bus.create({
     plateNumber: data.plateNumber,
     totalSeats: data.totalSeats,
     grade: data.grade
   });
-
+  const bus = {
+    id: resBus.id,
+    plateNumber: resBus.plateNumber,
+    totalSeats: resBus.totalSeats,
+    grade: resBus.grade
+  }
   // Send the response
-  res.status(200).send({
-    message: "Bus created successfully.",
-    bus: {
-      id: bus.id,
-      grade: bus.grade,
-      plateNumber: bus.plateNumber,
-      totalSeats: bus.totalSeats
-    }
-  });
+  res.status(200).json(bus);
 };
 
 // Get all buses

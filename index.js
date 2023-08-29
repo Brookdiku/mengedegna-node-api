@@ -15,7 +15,7 @@ app.use(fileUpload());
 //login
 app.use('/auth', require('./routers/authRouter'));
 app.use('/buses',  require('./routers/busRouter'));
-app.use('/busimages', authenticateMiddleware, require('./routers/busImageRouter'));
+app.use('/busimages', require('./routers/busImageRouter'));
 app.use('/users', authenticateMiddleware, require('./routers/userRouter'));
 app.listen(4000, (req, res) => {
     console.log("Server is running on port 3000")
