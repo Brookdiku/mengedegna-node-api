@@ -2,7 +2,8 @@ require('dotenv').config()
 const express = require("express")
 const bodyParser = require("body-parser")
 var cors = require('cors')
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
+
 const app = express();
 app.use(cors({
     origin: "*"
@@ -11,7 +12,7 @@ app.use(cors({
 const authenticateMiddleware = require('./middleware/authenticateMiddleware')
 
 app.use(bodyParser.json());
-app.use(fileUpload());
+// app.use(fileUpload());
 //login
 app.use('/auth', require('./routers/authRouter'));
 app.use('/buses',  require('./routers/busRouter'));

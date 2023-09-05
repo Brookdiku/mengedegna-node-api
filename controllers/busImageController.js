@@ -1,37 +1,31 @@
 //import
 const db = require("../models")
-const path = require('path'); // Add the path module
+
 //configuration
 const BusImage = db.busImages;
 const createBusImage = async (req, res) => {
-    if (!req.files || !req.files.image || !req.body.id || req.body.id === "") {
+
+    const busId = req.body.id;
+    const images = req.files;
+    console.log(busId);
+    console.log(images);
+    if (!images || !req.body.id || req.body.id === "") {
         // The request does not contain a file
         res.status(400).send({
             message: "Please specify the file key with the name <<image>> and the parent bus id key with <<id>> with out the quote.",
         });
     } else {
-        const file = req.files.image;
-        const fileName = file.name;
-        const busId = req.body.id;
-        // Create a unique file name for the image
-        const uniqueFileName = `${Date.now()}_${fileName}`;
-        // Save the file to the specified directory
-        const destinationPath = path.join(__dirname, '..', 'images', uniqueFileName);
-        console.log("=======================================================" + busId);
-        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++" + destinationPath);
-        await file.mv(destinationPath);
-        // Save the file name to the database
-        const busImage = await BusImage.create({
-            imageUrl: uniqueFileName,
-            bus_id: parseInt(busId)
-        });
+        const busImageArray = [];
+        images.map(image => {
+            busImageArray.push({
+                imageUrl: image.filename,
+                bus_id: busId
+            })
+        })
+        const busImage = await BusImage.bulkCreate(busImageArray)
         // Return the success message
         res.status(200).send({
             message: "image added",
-            data: {
-                id: busImage.id,
-                imageUrl: busImage.imageUrl,
-            }
         });
     }
 }
