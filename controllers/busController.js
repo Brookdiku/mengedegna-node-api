@@ -35,7 +35,7 @@ const createBus = async (req, res) => {
     grade: resBus.grade
   }
   // Send the response
-  res.status(200).json(bus);
+  res.status(200).json({ message: "bus created successfully.", bus });
 };
 
 // Get all buses
